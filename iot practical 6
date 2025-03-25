@@ -1,0 +1,25 @@
+import RPi.GPIO as GPIO
+import time
+
+GPIO.setmode(GPIO.BCM)
+LIGHT_SENSOR_PIN = 15
+LED_PIN = 12
+
+GPIO.setup(LIGHT_SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(LED_PIN, GPIO.OUT)
+
+try:
+    while True:
+        light_state = GPIO.input(LIGHT_SENSOR_PIN)
+
+        if light_state == GPIO.LOW:
+            GPIO.output(LED_PIN, GPIO.LOW)
+            print('Light is present, turn off the LED')
+        else:
+            GPIO.output(LED_PIN, GPIO.HIGH)
+            print('Light is not present, turn on the LED')
+
+        time.sleep(1)
+
+except KeyboardInterrupt:
+    GPIO.cleanup()
