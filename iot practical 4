@@ -1,0 +1,23 @@
+from picamera2 import Picamera2, Preview
+import time
+
+camera = Picamera2()
+
+camera_config = camera.create_preview_configuration(main={
+    "size": (2048, 1536)
+})
+
+camera.configure(camera_config)
+
+camera.start_preview(Preview.QTGL)
+camera.start()
+
+print('Previewing')
+
+time.sleep(5)
+camera.capture_file("captured_image.jpg")
+
+print('Picture Saved')
+
+camera.stop_preview()
+camera.stop()
