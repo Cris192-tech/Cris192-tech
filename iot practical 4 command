@@ -1,0 +1,4 @@
+sudo raspi-config
+sudo apt update && sudo apt full-upgrade -y
+sudo rpi-update
+sudo reboot
