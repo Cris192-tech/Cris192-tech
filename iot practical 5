@@ -1,0 +1,40 @@
+Import RPi.GPIO as GPIO 
+Import time 
+IN1 = 23 
+IN2 = 24 
+IN3 = 25 
+IN4 = 8 
+GPIO.setmode(GPIO.BCM) 
+GPIO.setup(IN1, GPIO.OUT) 
+GPIO.setup(IN2, GPIO.OUT) 
+GPIO.setup(IN3, GPIO.OUT) 
+GPIO.setup(IN4, GPIO.OUT) 
+Seq = [ 
+[1, 0, 0, 0], 
+[1, 1, 0, 0], 
+[0, 1, 0, 0], 
+[0, 1, 1, 0], 
+[0, 0, 1, 0], 
+[0, 0, 1, 1], 
+[0, 0, 0, 1], 
+[1, 0, 0, 1] 
+] 
+Def rotate_motor(delay, steps): 
+For _ in range(steps): 
+For step in seq: 
+GPIO.output(IN1, step[0]) 
+GPIO.output(IN2, step[1]) 
+GPIO.output(IN3, step[2]) 
+GPIO.output(IN4, step[3]) 
+Time.sleep(delay) 
+Try: 
+print(“Rotating motor clockwise…”) 
+Rotate_motor(0.002, 512) 
+Time.sleep(1) 
+print(“Rotating motor counterclockwise…”) 
+Seq.reverse() 
+Rotate_motor(0.002, 512) 
+Except KeyboardInterrupt: 
+print(“\nExiting…”) 
+Finally: 
+GPIO.cleanup() 
