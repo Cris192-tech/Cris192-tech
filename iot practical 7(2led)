@@ -1,0 +1,71 @@
+import RPi.GPIO as GPIO 
+import os 
+from http.server import BaseHTTPRequestHandler, HTTPServer 
+import urllib.parse 
+HOST_NAME = '192.168.0.112' 
+HOST_PORT = 8000 
+LED1_PIN = 18 
+LED2_PIN = 23 
+def setupGPIO(): 
+GPIO.setmode(GPIO.BCM) 
+GPIO.setwarnings(False) 
+GPIO.setup(LED1_PIN, GPIO.OUT) 
+GPIO.setup(LED2_PIN, GPIO.OUT) 
+def getTemperature(): 
+return os.popen("/opt/vc/bin/vcgencmd measure_temp").read().strip() 
+class MyServer(BaseHTTPRequestHandler): 
+def do_HEAD(self): 
+self.send_response(200) 
+self.send_header('Content-type', 'text/html') 
+self.end_headers() 
+def _redirect(self, path): 
+self.send_response(303) 
+self.send_header('Content-type', 'text/html') 
+self.send_header('Location', path) 
+self.end_headers() 
+def do_GET(self): 
+self.do_HEAD() 
+temperature = getTemperature() 
+html = f""" 
+<html> 
+<head><title>Raspberry Pi LED Control</title></head> 
+<body style="width:960px; margin:20px auto;"> 
+<h1>Welcome to my Raspberry Pi</h1> 
+<h2>Temperature: {temperature}</h2> 
+<form action="/" method="POST"> 
+<h3>Control LED 1</h3> 
+<button type="submit" name="led" value="LED1 On">Turn LED 1 On</button> 
+<button type="submit" name="led" value="LED1 Off">Turn LED 1 Off</button> 
+<h3>Control LED 2</h3> 
+<button type="submit" name="led" value="LED2 On">Turn LED 2 On</button> 
+<button type="submit" name="led" value="LED2 Off">Turn LED 2 Off</button> 
+</form> 
+</body> 
+</html> 
+""" 
+self.wfile.write(html.encode("utf-8")) 
+def do_POST(self): 
+content_length = int(self.headers['Content-Length']) 
+post_data = self.rfile.read(content_length) 
+data = urllib.parse.parse_qs(post_data.decode('utf-8')) 
+if 'led' in data: 
+action = data['led'][0] 
+if action == 'LED1 On': 
+GPIO.output(LED1_PIN, GPIO.HIGH) 
+elif action == 'LED1 Off': 
+GPIO.output(LED1_PIN, GPIO.LOW) 
+elif action == 'LED2 On': 
+GPIO.output(LED2_PIN, GPIO.HIGH) 
+elif action == 'LED2 Off': 
+GPIO.output(LED2_PIN, GPIO.LOW) 
+self._redirect('/') 
+if  name == ' main ': 
+setupGPIO() 
+server = HTTPServer((HOST_NAME, HOST_PORT), MyServer) 
+print(f"Server started at http://{HOST_NAME}:{HOST_PORT}") 
+try: 
+server.serve_forever() 
+except KeyboardInterrupt: 
+GPIO.cleanup() 
+server.server_close() 
+print("\nServer stopped")
