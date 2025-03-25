@@ -1,0 +1,12 @@
+from gpiozero import LED
+import time
+
+led = LED(4)
+
+for _ in range(10):
+    led.on()
+    print('Led on')
+    time.sleep(1)
+    led.off()
+    print('Led off')
+    time.sleep(1)
